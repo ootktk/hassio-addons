@@ -36,11 +36,13 @@ timestamp = None
 logging.info("Listening for codes on GPIO " + str(args.gpio))
 while True:
     if rfdevice.rx_code_timestamp != timestamp:
-        timestamp = rfdevice.rx_code_timestamp
-        logging.info(str(rfdevice.rx_code) +
-                     " [pulselength " + str(rfdevice.rx_pulselength) +
-                     ", protocol " + str(rfdevice.rx_proto) + "]")
-        os.system("mosquitto_pub -V mqttv311 -h " + mosquitto_address + " -p " + mosquitto_port + " -t 'sensors/rf/receiver' -u " + mosquitto_user + " -P " + mosquitto_password + " -m " + str(rfdevice.rx_code))
+        if rfdevice.rx_pulselength > 300 and rfdevice.rx_pulselength < 400:
+            timestamp = rfdevice.rx_code_timestamp
+            logging.info(str(rfdevice.rx_code) +
+                         " [pulselength " + str(rfdevice.rx_pulselength) +
+                         ", protocol " + str(rfdevice.rx_proto) + "]")
+            os.system("mosquitto_pub -V mqttv311 -h " + mosquitto_address + " -p " + mosquitto_port + " -t 'sensors/rf/receiver' -u " + mosquitto_user + " -P " + mosquitto_password + " -m " + str(rfdevice.rx_code))
+        else
     time.sleep(0.01)
 rfdevice.cleanup() 
 
